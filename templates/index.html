@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>방방이 AI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to bottom, #f9fafb, #f1f5f9);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem;
+      color: #1f2937;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      width: 100%;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, #8b5cf6, #6366f1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .header p {
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 42rem;
+      background-color: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .card-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-description {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .tabs {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    .tab-list {
+      display: flex;
+      background-color: #f3f4f6;
+      border-radius: 0.5rem;
+      padding: 0.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .tab-trigger {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #6b7280;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .tab-trigger.active {
+      background-color: white;
+      color: #111827;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .recorder-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .recorder-circle {
+      width: 8rem;
+      height: 8rem;
+      border-radius: 50%;
+      background-color: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-record {
+      width: 5rem;
+      height: 5rem;
+      border-radius: 50%;
+      background-color: #6366f1;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-record:hover {
+      background-color: #4f46e5;
+      transform: scale(1.05);
+    }
+
+    .btn-record.recording {
+      background-color: #ef4444;
+      animation: pulse 1.5s infinite;
+    }
+
+    .btn-record.recording:hover {
+      background-color: #dc2626;
+    }
+
+    .btn-record:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status {
+      text-align: center;
+      margin: 0.5rem 0;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .status.recording {
+      color: #ef4444;
+      font-weight: 500;
+    }
+
+    .timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .timer-icon {
+      color: #ef4444;
+      animation: pulse 1.5s infinite;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 0.5rem;
+      background-color: #e5e7eb;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(to right, #6366f1, #8b5cf6);
+      border-radius: 1rem;
+      transition: width 0.3s ease;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 1.5rem;
+      height: 1.5rem;
+      border: 3px solid rgba(99, 102, 241, 0.3);
+      border-radius: 50%;
+      border-top-color: #6366f1;
+      animation: spin 1s linear infinite;
+    }
+
+    .logs-container {
+      margin-top: 1rem;
+    }
+
+    .log-item {
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      margin-bottom: 0.75rem;
+      background-color: #f9fafb;
+      transition: all 0.2s;
+    }
+
+    .log-item:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transform: translateY(-1px);
+    }
+
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .log-time {
+      font-size: 0.75rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .log-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .log-text {
+      font-size: 0.875rem;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+      text-align: center;
+      border: 2px dashed #e5e7eb;
+      border-radius: 0.5rem;
+    }
+
+    .empty-state-icon {
+      font-size: 2.5rem;
+      color: #9ca3af;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state-text {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background-color: #6366f1;
+      color: white;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      background-color: #4f46e5;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid #d1d5db;
+      color: #4b5563;
+    }
+
+    .btn-outline:hover {
+      background-color: #f9fafb;
+    }
+
+    .btn-icon {
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+    }
+
+    .btn-large {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+    }
+
+    .btn-summary {
+      margin-top: 1rem;
+      width: auto;
+      align-self: center;
+    }
+
+    .icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .icon-sm {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .icon-lg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 1.5rem;
+        max-width: 64rem;
+      }
+
+      .header h1 {
+        font-size: 3rem;
+      }
+
+      .card {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .container {
+        width: 100%;
+      }
+
+      .card {
+        padding: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>방방이 AI</h1>
+    <p>당신의 음성을 텍스트로, 생각을 기록으로</p>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">음성 녹음</h2>
+        <p class="card-description">버튼을 눌러 음성을 녹음하세요</p>
+      </div>
+      
+      <form id="recordForm" method="POST" action="/">
+        <div class="recorder-container">
+          <div class="recorder-circle">
+            <button type="button" id="recordButton" class="btn-record">
+              <svg class="icon icon-lg" id="micIcon" viewBox="0 0 24 24">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+          
+          <div id="timerContainer" class="timer" style="display: none;">
+            <svg class="icon icon-sm timer-icon" viewBox="0 0 24 24">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+            </svg>
+            <span id="recordingTime">00:00</span>
+          </div>
+          
+          <div id="progressContainer" class="progress-container" style="display: none;">
+            <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+          </div>
+          
+          <div class="status" id="recordingStatus">녹음 버튼을 클릭하여 시작하세요</div>
+          
+          <div class="loading" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <div>처리 중...</div>
+          </div>
+        </div>
+        
+        <input type="submit" id="submitButton" class="btn btn-large" value="음성 변환하기" style="display: none;">
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <div class="tab-list">
+          <div class="tab-trigger active" data-tab="logs">
+            <svg class="icon icon-sm" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            오늘의 기록
+          </div>
+          <div class="tab-trigger" data-tab="summary">
+            <svg class="icon icon-sm" viewBox="0 0 24 24">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            요약
+          </div>
+        </div>
+        
+        <div class="tab-content active" id="logsTab">
+          <div class="card-header">
+            <h2 class="card-title">오늘의 기록</h2>
+            <p class="card-description">최근 녹음된 음성 기록</p>
+          </div>
+          
+          <div class="logs-container" id="logsContainer">
+            {% if logs %}
+              {% for log in logs %}
+                <div class="log-item">
+                  <div class="log-header">
+                    <div class="log-time">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      {{ log.time.split(' ')[1] }}
+                    </div>
+                    <div class="log-actions">
+                      <button class="btn btn-outline btn-icon copy-button" data-text="{{ log.text }}">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <p class="log-text">{{ log.text }}</p>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state" id="emptyState">
+                <div class="empty-state-icon">
+                  <svg class="icon icon-lg" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                </div>
+                <h3 class="empty-state-title">기록이 없습니다</h3>
+                <p class="empty-state-text">녹음 버튼을 눌러 첫 번째 기록을 시작하세요</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="tab-content" id="summaryTab">
+          <div class="card-header">
+            <h2 class="card-title">오늘의 요약</h2>
+            <p class="card-description">AI가 오늘의 기록을 분석하여 요약합니다</p>
+          </div>
+          
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg class="icon icon-lg" viewBox="0 0 24 24">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </div>
+            <h3 class="empty-state-title">요약 준비 완료</h3>
+            <p class="empty-state-text">버튼을 클릭하여 오늘의 기록에 대한 AI 요약을 생성하세요</p>
+            <a href="{{ url_for('summarize') }}" class="btn btn-summary">
+              <svg class="icon icon-sm" viewBox="0 0 24 24">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              요약 생성하기
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const recordButton = document.getElementById('recordButton');
+      const recordForm = document.getElementById('recordForm');
+      const submitButton = document.getElementById('submitButton');
+      const recordingStatus = document.getElementById('recordingStatus');
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const micIcon = document.getElementById('micIcon');
+      const timerContainer = document.getElementById('timerContainer');
+      const recordingTime = document.getElementById('recordingTime');
+      const progressContainer = document.getElementById('progressContainer');
+      const progressBar = document.getElementById('progressBar');
+      const tabTriggers = document.querySelectorAll('.tab-trigger');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      let isRecording = false;
+      let recordingDuration = 0;
+      let maxRecordingTime = 5; 
+      let timerInterval;
+      
+      tabTriggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+          const tabId = trigger.getAttribute('data-tab');
+          
+          tabTriggers.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+          
+          trigger.classList.add('active');
+          document.getElementById(tabId + 'Tab').classList.add('active');
+        });
+      });
+      
+      recordButton.addEventListener('click', function() {
+        if (isRecording) {
+          stopRecording();
+        } else {
+          startRecording();
+        }
+      });
+      
+      function startRecording() {
+        isRecording = true;
+        recordingDuration = 0;
+        
+        recordButton.classList.add('recording');
+        recordingStatus.classList.add('recording');
+        recordingStatus.textContent = '녹음 중...';
+        
+        micIcon.innerHTML = '<rect x="6" y="6" width="12" height="12"></rect>';
+        
+        timerContainer.style.display = 'flex';
+        progressContainer.style.display = 'block';
+        
+        timerInterval = setInterval(updateTimer, 1000);
+      }
+      
+      function stopRecording() {
+        isRecording = false;
+        clearInterval(timerInterval);
+        
+        recordButton.classList.remove('recording');
+        recordingStatus.classList.remove('recording');
+        recordingStatus.textContent = '녹음 완료! 변환 중...';
+        loadingIndicator.style.display = 'block';
+        recordButton.disabled = true;
+        
+        micIcon.innerHTML = `
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+          <line x1="12" y1="19" x2="12" y2="23"></line>
+          <line x1="8" y1="23" x2="16" y2="23"></line>
+        `;
+        
+        submitButton.click();
+      }
+      
+      function updateTimer() {
+        recordingDuration++;
+        
+        const minutes = Math.floor(recordingDuration / 60);
+        const seconds = recordingDuration % 60;
+        recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        const progress = (recordingDuration / maxRecordingTime) * 100;
+        progressBar.style.width = `${Math.min(progress, 100)}%`;
+        
+        if (recordingDuration >= maxRecordingTime) {
+          stopRecording();
+        }
+      }
+      
+      const copyButtons = document.querySelectorAll('.copy-button');
+      copyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const text = this.getAttribute('data-text');
+          navigator.clipboard.writeText(text).then(() => {
+            const originalIcon = this.innerHTML;
+            this.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            
+            setTimeout(() => {
+              this.innerHTML = originalIcon;
+            }, 2000);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
