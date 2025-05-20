@@ -1,0 +1,2 @@
+echo "json/config.json" >> .gitignore
+git rm --cached json/config.json

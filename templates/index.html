@@ -406,9 +406,201 @@
         padding: 1.25rem;
       }
     }
+
+    /* 로그 창 스타일 */
+    .cmd-window {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 24rem;
+      height: 20rem;
+      background-color: #0c0c0c;
+      color: #cccccc;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+      transition: all 0.3s ease;
+      font-family: 'Consolas', 'Courier New', monospace;
+    }
+
+    .cmd-window.minimized {
+      height: 2.5rem;
+      width: 12rem;
+    }
+
+    .cmd-window.fullscreen {
+      width: 100%;
+      height: 100%;
+      bottom: 0;
+      right: 0;
+      border-radius: 0;
+    }
+
+    .cmd-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0f0f0f;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #333;
+      user-select: none;
+    }
+
+    .cmd-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: #ffffff;
+    }
+
+    .cmd-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .cmd-btn {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      color: #cccccc;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .cmd-btn:hover {
+      background-color: #333;
+    }
+
+    .cmd-content {
+      flex: 1;
+      padding: 0.75rem;
+      overflow-y: auto;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .cmd-content::-webkit-scrollbar {
+      width: 0.5rem;
+    }
+
+    .cmd-content::-webkit-scrollbar-track {
+      background: #0c0c0c;
+    }
+
+    .cmd-content::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 0.25rem;
+    }
+
+    .cmd-log {
+      margin-bottom: 0.5rem;
+      word-break: break-word;
+    }
+
+    .cmd-log-time {
+      color: #6366f1;
+      margin-right: 0.5rem;
+    }
+
+    .cmd-log-system {
+      color: #10b981;
+    }
+
+    .cmd-log-error {
+      color: #ef4444;
+    }
+
+    .cmd-log-warning {
+      color: #f59e0b;
+    }
+
+    .cmd-log-info {
+      color: #3b82f6;
+    }
+
+    .cmd-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      background-color: #0f0f0f;
+      border-top: 1px solid #333;
+    }
+
+    .cmd-status {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .cmd-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .cmd-toggle {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      background-color: #6366f1;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+      transition: all 0.2s;
+    }
+
+    .cmd-toggle:hover {
+      background-color: #4f46e5;
+      transform: scale(1.05);
+    }
+
+    .cmd-toggle.hidden {
+      display: none;
+    }
+
+    .cmd-input-container {
+      display: flex;
+      align-items: center;
+      background-color: #1a1a1a;
+      border-radius: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .cmd-prompt {
+      color: #10b981;
+      margin-right: 0.5rem;
+    }
+
+    .cmd-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.75rem;
+      outline: none;
+    }
   </style>
 </head>
 <body>
+  
   <header class="header">
     <h1>방방이 AI</h1>
     <p>당신의 음성을 텍스트로, 생각을 기록으로</p>
@@ -558,6 +750,80 @@
     </div>
   </div>
 
+  <!-- 로그 창 토글 버튼 -->
+  <button id="cmdToggle" class="cmd-toggle">
+    <svg class="icon" viewBox="0 0 24 24">
+      <polyline points="4 17 10 11 4 5"></polyline>
+      <line x1="12" y1="19" x2="20" y2="19"></line>
+    </svg>
+  </button>
+
+  <!-- 로그 창 (CMD 스타일) -->
+  <div id="cmdWindow" class="cmd-window" style="display: none;">
+    <div class="cmd-header">
+      <div class="cmd-title">
+        <svg class="icon icon-sm" viewBox="0 0 24 24">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        <span>시스템 로그</span>
+      </div>
+      <div class="cmd-controls">
+        <button id="cmdMinimize" class="cmd-btn">
+          <svg class="icon icon-sm" viewBox="0 0 24 24">
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </button>
+        <button id="cmdMaximize" class="cmd-btn">
+          <svg class="icon icon-sm" viewBox="0 0 24 24">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+        </button>
+        <button id="cmdClose" class="cmd-btn">
+          <svg class="icon icon-sm" viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div id="cmdContent" class="cmd-content">
+      <!-- 로그 내용이 여기에 추가됩니다 -->
+    </div>
+    <div class="cmd-input-container">
+      <span class="cmd-prompt">></span>
+      <input type="text" id="cmdInput" class="cmd-input" placeholder="명령어를 입력하세요..." autocomplete="off">
+    </div>
+    <div class="cmd-footer">
+      <div class="cmd-status" id="cmdStatus">준비 완료</div>
+      <div class="cmd-actions">
+        <button id="cmdClear" class="cmd-btn" title="로그 지우기">
+          <svg class="icon icon-sm" viewBox="0 0 24 24">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+        <button id="cmdCopy" class="cmd-btn" title="로그 복사">
+          <svg class="icon icon-sm" viewBox="0 0 24 24">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+        <button id="cmdDownload" class="cmd-btn" title="로그 다운로드">
+          <svg class="icon icon-sm" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <footer class="footer">
   </footer>
 
@@ -615,6 +881,9 @@
         progressContainer.style.display = 'block';
         
         timerInterval = setInterval(updateTimer, 1000);
+
+        // 로그 창에 로그 추가
+        addSystemLog('음성 녹음이 시작되었습니다.');
       }
       
       function stopRecording() {
@@ -635,6 +904,23 @@
         `;
         
         submitButton.click();
+
+        // 로그 창에 로그 추가
+        addSystemLog('음성 녹음이 완료되었습니다.');
+        addInfoLog('음성 데이터를 처리 중입니다...');
+        
+        // 음성 처리 과정을 시뮬레이션하기 위한 타이머
+        setTimeout(() => {
+          addInfoLog('모델을 호출 중...');
+        }, 1500);
+        
+        setTimeout(() => {
+          addInfoLog('음성-텍스트 변환 완료');
+        }, 3000);
+        
+        setTimeout(() => {
+          addSystemLog('텍스트가 성공적으로 저장되었습니다.');
+        }, 4500);
       }
       
       function updateTimer() {
@@ -666,6 +952,194 @@
           });
         });
       });
+
+      // 로그 창 관련 코드
+      const cmdToggle = document.getElementById('cmdToggle');
+      const cmdWindow = document.getElementById('cmdWindow');
+      const cmdMinimize = document.getElementById('cmdMinimize');
+      const cmdMaximize = document.getElementById('cmdMaximize');
+      const cmdClose = document.getElementById('cmdClose');
+      const cmdContent = document.getElementById('cmdContent');
+      const cmdClear = document.getElementById('cmdClear');
+      const cmdCopy = document.getElementById('cmdCopy');
+      const cmdDownload = document.getElementById('cmdDownload');
+      const cmdInput = document.getElementById('cmdInput');
+      const cmdStatus = document.getElementById('cmdStatus');
+
+      let isMinimized = false;
+      let isFullscreen = false;
+
+      // 로그 창 토글
+      cmdToggle.addEventListener('click', function() {
+        if (cmdWindow.style.display === 'none') {
+          cmdWindow.style.display = 'flex';
+          cmdToggle.style.display = 'none';
+          addSystemLog('로그 창이 열렸습니다.');
+        }
+      });
+
+      // 로그 창 최소화
+      cmdMinimize.addEventListener('click', function() {
+        if (isMinimized) {
+          cmdWindow.classList.remove('minimized');
+          isMinimized = false;
+          cmdStatus.textContent = '준비 완료';
+        } else {
+          cmdWindow.classList.add('minimized');
+          isMinimized = true;
+          cmdStatus.textContent = '최소화됨';
+        }
+      });
+
+      // 로그 창 최대화
+      cmdMaximize.addEventListener('click', function() {
+        if (isFullscreen) {
+          cmdWindow.classList.remove('fullscreen');
+          isFullscreen = false;
+          cmdStatus.textContent = '준비 완료';
+        } else {
+          cmdWindow.classList.add('fullscreen');
+          isFullscreen = true;
+          cmdStatus.textContent = '전체 화면 모드';
+        }
+      });
+
+      // 로그 창 닫기
+      cmdClose.addEventListener('click', function() {
+        cmdWindow.style.display = 'none';
+        cmdToggle.style.display = 'flex';
+      });
+
+      // 로그 지우기
+      cmdClear.addEventListener('click', function() {
+        cmdContent.innerHTML = '';
+        addSystemLog('로그가 지워졌습니다.');
+      });
+
+      // 로그 복사
+      cmdCopy.addEventListener('click', function() {
+        const logText = cmdContent.innerText;
+        navigator.clipboard.writeText(logText).then(() => {
+          addSystemLog('로그가 클립보드에 복사되었습니다.');
+        }).catch(err => {
+          addErrorLog('복사 중 오류가 발생했습니다: ' + err);
+        });
+      });
+
+      // 로그 다운로드
+      cmdDownload.addEventListener('click', function() {
+        const logText = cmdContent.innerText;
+        const blob = new Blob([logText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `방방이_로그_${new Date().toISOString().slice(0, 10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        addSystemLog('로그 파일이 다운로드되었습니다.');
+      });
+
+      // 명령어 입력 처리
+      cmdInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          const command = this.value.trim();
+          if (command) {
+            addCommandLog(command);
+            processCommand(command);
+            this.value = '';
+          }
+        }
+      });
+
+      // 로그 추가 함수들
+      function addLog(message, className = '') {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('ko-KR');
+        const logElement = document.createElement('div');
+        logElement.className = 'cmd-log ' + className;
+        logElement.innerHTML = `<span class="cmd-log-time">[${timeString}]</span> ${message}`;
+        cmdContent.appendChild(logElement);
+        cmdContent.scrollTop = cmdContent.scrollHeight;
+      }
+
+      function addSystemLog(message) {
+        addLog(message, 'cmd-log-system');
+      }
+
+      function addErrorLog(message) {
+        addLog(message, 'cmd-log-error');
+      }
+
+      function addWarningLog(message) {
+        addLog(message, 'cmd-log-warning');
+      }
+
+      function addInfoLog(message) {
+        addLog(message, 'cmd-log-info');
+      }
+
+      function addCommandLog(command) {
+        const logElement = document.createElement('div');
+        logElement.className = 'cmd-log';
+        logElement.innerHTML = `<span class="cmd-prompt">></span> ${command}`;
+        cmdContent.appendChild(logElement);
+        cmdContent.scrollTop = cmdContent.scrollHeight;
+      }
+
+      // 명령어 처리 함수
+      function processCommand(command) {
+        const cmd = command.toLowerCase();
+        
+        if (cmd === 'help' || cmd === '도움말') {
+          addSystemLog('사용 가능한 명령어:');
+          addSystemLog('help, 도움말 - 도움말 표시');
+          addSystemLog('clear, 지우기 - 로그 지우기');
+          addSystemLog('status, 상태 - 시스템 상태 확인');
+          addSystemLog('version, 버전 - 버전 정보 표시');
+          addSystemLog('exit, 종료 - 로그 창 닫기');
+        } 
+        else if (cmd === 'clear' || cmd === '지우기') {
+          cmdContent.innerHTML = '';
+          addSystemLog('로그가 지워졌습니다.');
+        } 
+        else if (cmd === 'status' || cmd === '상태') {
+          addSystemLog('시스템 상태: 정상');
+          addInfoLog('음성 인식 모듈: 활성화');
+          addInfoLog('메모리 사용량: 45%');
+        } 
+        else if (cmd === 'version' || cmd === '버전') {
+          addSystemLog('방방이 AI 버전: 1.2.0');
+          addInfoLog('업데이트 날짜: 2025-05-20');
+          addInfoLog('빌드 번호: 20250520-1');
+        } 
+        else if (cmd === 'exit' || cmd === '종료') {
+          cmdWindow.style.display = 'none';
+          cmdToggle.style.display = 'flex';
+        } 
+        else {
+          addErrorLog(`알 수 없는 명령어: ${command}`);
+          addErrorLog('도움말을 보려면 "help" 또는 "도움말"을 입력하세요.');
+        }
+      }
+
+      // 초기 로그 추가
+      addSystemLog('방방이 AI 시스템 로그 v1.2.0');
+      addSystemLog('시스템 초기화 중...');
+      
+      setTimeout(() => {
+        addInfoLog('음성 인식 모듈 로드 완료');
+      }, 500);
+      
+      setTimeout(() => {
+        addInfoLog('모델 초기화 완료');
+      }, 1000);
+      
+      setTimeout(() => {
+        addSystemLog('방방이 AI 서비스가 시작되었습니다.');
+        addSystemLog('명령어를 입력하려면 아래 프롬프트에 입력하세요. 도움말은 "help"를 입력하세요.');
+      }, 1500);
     });
   </script>
 </body>

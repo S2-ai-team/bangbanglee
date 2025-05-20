@@ -27,7 +27,7 @@ with open("json/flash.json", "w", encoding="utf-8") as f:
     json.dump([], f, ensure_ascii=False)
 
 try:
-    repeat = int(input("Enter the number of times you want to record:"))
+    repeat = 1
 except ValueError:
     print("error input")
     exit()
