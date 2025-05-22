@@ -6,8 +6,7 @@ import speech_recognition as sr
 import json
 from datetime import datetime
 import requests
-import re
-
+import threading
 
 with open("json/config.json", "r", encoding="utf-8") as f:
     config = json.load(f)
@@ -23,23 +22,11 @@ samplerate = 16000
 duration = 5
 r = sr.Recognizer()
 
-with open("json/flash.json", "w", encoding="utf-8") as f:
-    json.dump([], f, ensure_ascii=False)
+repeat = 10
 
-try:
-    repeat = 1
-except ValueError:
-    print("error input")
-    exit()
-
-
-for i in range(repeat):
-    print(f"[{i+1}]")
-    recording = sd.rec(int(samplerate * duration), samplerate=samplerate, channels=1, dtype='int16')
-    sd.wait()
-
+def recognize_and_save(audio_data, index):
     buffer = io.BytesIO()
-    wavfile.write(buffer, samplerate, recording)
+    wavfile.write(buffer, samplerate, audio_data)
     buffer.seek(0)
 
     with sr.AudioFile(buffer) as source:
@@ -47,18 +34,40 @@ for i in range(repeat):
 
     try:
         text = r.recognize_google(audio, language='ko-KR')
-        print("", text)
-        with open("json/flash.json", "r+", encoding="utf-8") as f:
-            data = json.load(f)
-            data.append({
-                "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "text": text
-            })
-            f.seek(0)
-            json.dump(data, f, ensure_ascii=False, indent=2)
-            f.truncate()
+        if not text.strip():
+            text = "인식 안됨"
     except:
-        print("error")
+        text = "인식 안됨"
+
+    print(f"[{index+1}] {text}")
+
+    try:
+        with open("json/flash.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except:
+        data = []
+
+    data.append({
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "text": text
+    })
+
+    with open("json/flash.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+threads = []
+
+for i in range(repeat):
+    print(f"[{i+1}] Recording...")
+    recording = sd.rec(int(samplerate * duration), samplerate=samplerate, channels=1, dtype='int16')
+    sd.wait()
+
+    t = threading.Thread(target=recognize_and_save, args=(recording.copy(), i))
+    t.start()
+    threads.append(t)
+
+for t in threads:
+    t.join()
 
 def get_response(prompt, user_text):
     chat_history = [
